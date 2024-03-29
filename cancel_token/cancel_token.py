@@ -2,6 +2,10 @@ from threading import Lock
 from typing import List, Callable
 
 
+class Cancelled(Exception):
+    pass
+
+
 class CancellationToken:
     def __init__(self):
         # type: () -> None
@@ -64,3 +68,7 @@ class CancellationToken:
     def completed(self):
         # type: () -> bool
         return self._completed
+
+    def raises_if_cancelled(self):
+        if self._canceled:
+            raise Cancelled
