@@ -30,7 +30,7 @@ class CancellationToken:
     def cancel(self):
         # type: () -> None
         with self._lock:
-            if self._canceled:
+            if self._canceled or self._completed:
                 return
 
             self._canceled = True
