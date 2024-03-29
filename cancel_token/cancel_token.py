@@ -25,10 +25,15 @@ class CancellationToken:
 
     def remove_callback(self, callback):
         # type: (Callable[[], None]) -> None
-        self._callbacks.remove(callback)
+        try:
+            self._callbacks.remove(callback)
+        except ValueError:
+            pass
 
     def cancel(self):
         # type: () -> None
+        if self._canceled or self._completed:
+            return
         with self._lock:
             if self._canceled or self._completed:
                 return
@@ -38,11 +43,17 @@ class CancellationToken:
 
         for f in [x for x in self._callbacks]:
             f()
+        self._callbacks = []
 
     def complete(self):
         # type: () -> None
+        if self._completed:
+            return
         with self._lock:
+            if self._completed:
+                return
             self._completed = True
+        self._callbacks = []
 
     @property
     def cancelled(self):
